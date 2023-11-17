@@ -5,6 +5,6 @@
 
  ## Setup
  - Clone the repo
- - Install dependencies: pip3 install -r requirements.py
- - RUN chmod +x extractor.py
- - RUN ./extractor.py -f <filepath of the audio file>
+ - Install dependencies: `pip3 install -r requirements.py`
+ - RUN `chmod +x extractor.py`
+ - RUN `./extractor.py -f <filepath of the audio file>`
