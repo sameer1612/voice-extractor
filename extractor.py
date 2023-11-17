@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
 import subprocess
 import time
 from pathlib import Path
@@ -12,9 +11,24 @@ ALLOWED_AUDIO_EXTENSIONS = [".mp3", ".wav", ".ogg"]
 SAMPLING_RATE = 16000
 
 
+model, utils = torch.hub.load(
+    repo_or_dir="snakers4/silero-vad",
+    model="silero_vad",
+    force_reload=False,
+    onnx=False,
+)
+(
+    get_speech_timestamps,
+    save_audio,
+    read_audio,
+    _,
+    collect_chunks,
+) = utils
+
+
 def is_audio_file(file_path):
-    _, file_extension = os.path.splitext(file_path)
-    return file_extension.lower() in ALLOWED_AUDIO_EXTENSIONS
+    extension = Path(file_path).suffix.lower()
+    return extension in ALLOWED_AUDIO_EXTENSIONS
 
 
 def downsample(file_path):
@@ -34,20 +48,6 @@ def extract_voice(file_path):
 
         target_file = downsample(file_path)
 
-        model, utils = torch.hub.load(
-            repo_or_dir="snakers4/silero-vad",
-            model="silero_vad",
-            force_reload=False,
-            onnx=False,
-        )
-        (
-            get_speech_timestamps,
-            save_audio,
-            read_audio,
-            _,
-            collect_chunks,
-        ) = utils
-
         s = time.time()
 
         wav = read_audio(target_file, sampling_rate=SAMPLING_RATE)
@@ -61,7 +61,9 @@ def extract_voice(file_path):
         )
 
         e = time.time()
-        print(f"\n🎧 Extracted file: {target_file}\n🚀 Execution time: {e - s} seconds")
+        print(
+            f"\n🎧 Extracted file: {target_file}\n🚀 Execution time: {round(e - s, 2)} seconds"
+        )
 
     except FileNotFoundError:
         print(f"Error: File '{file_path}' not found.")
